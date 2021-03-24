@@ -1,0 +1,2 @@
+This code checks the most repeated number in an array with 2 algorithms. The first algorithm check with loops.
+Second algorithm checks with Linear Probing Algorithm. Also these algorithms checks the time.
