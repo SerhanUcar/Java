@@ -1,0 +1,1 @@
+This code packs the truck completely by using as few items as possible.
