@@ -1,0 +1,170 @@
+package hufmannn;
+
+import java.util.HashMap;
+import java.util.Scanner;
+
+public class Hufmannn {
+
+    public static String[][] SayılarıBelirle(String kelime, String[][] sayılar) {
+        int HarfAdeti = 0;
+        boolean varmı = true;
+        int sıra = 0;
+        int j;
+        for (int i = 0; i < kelime.length(); i++) {
+            for (int x = 0; x < i; x++) {
+                if (kelime.charAt(i) == kelime.charAt(x)) {
+                    HarfAdeti--;
+                    break;
+                }
+            }
+            HarfAdeti++;
+        }
+        sayılar = new String[HarfAdeti++][2];
+        for (int i = 0; i < kelime.length(); i++) {
+            for (j = 0; j < sayılar.length; j++) {
+                if (Character.toString(kelime.charAt(i)).equals(sayılar[j][0])) {
+                    varmı = false;
+                    break;
+                }
+            }
+
+            if (varmı) {
+                sayılar[sıra][0] = Character.toString(kelime.charAt(i));
+                sayılar[sıra++][1] = "1";
+            } else {
+                sayılar[j][1] = Integer.toString((Integer.parseInt(sayılar[j][1])) + 1);
+                varmı = true;
+            }
+        }
+        return sayılar;
+    }
+
+    public static void Sırala(String[][] sayılar) {
+        String a1, a2;
+        for (int i = 0; i < sayılar.length; i++) {
+            for (int j = 0; j < sayılar.length - 1; j++) {
+                if (sayılar[j + 1][1] != null) {
+                    if (Integer.parseInt(sayılar[j][1]) > Integer.parseInt(sayılar[j + 1][1])) {
+                        a1 = sayılar[j][1];
+                        a2 = sayılar[j][0];
+                        sayılar[j][1] = sayılar[j + 1][1];
+                        sayılar[j][0] = sayılar[j + 1][0];
+                        sayılar[j + 1][1] = a1;
+                        sayılar[j + 1][0] = a2;
+                    }
+                }
+            }
+        }
+    }
+
+    public static void AgacDoldur(String[][] sayılar, String[][] Agac) {
+        for (int i = 0; i < sayılar.length; i++) {
+            Agac[i][2] = sayılar[i][0];
+            Agac[i][0] = Agac[i][1] = "x";
+        }
+        for (int z = 0; z < sayılar.length - 1; z++) {
+            for (int i = Agac.length - 1; i >= 0; i--) {
+                if (sayılar[0][0].equals(Agac[i][2])) {
+                    Agac[sayılar.length + z][0] = i + "";
+                }
+            }
+            for (int i = Agac.length - 1; i >= 0; i--) {
+                if (sayılar[1][0].equals(Agac[i][2])) {
+                    Agac[sayılar.length + z][1] = i + "";
+                }
+            }
+            sayılar[0][0] = sayılar[0][0] + sayılar[1][0];
+            sayılar[0][1] = (Integer.parseInt(sayılar[0][1]) + Integer.parseInt(sayılar[1][1])) + "";
+            Agac[sayılar.length + z][2] = sayılar[0][0];
+            for (int i = 1; i < sayılar.length - 1; i++) {
+                sayılar[i][0] = sayılar[i + 1][0];
+                sayılar[i][1] = sayılar[i + 1][1];
+            }
+            sayılar[sayılar.length - 1][0] = null;
+            sayılar[sayılar.length - 1][1] = null;
+            Sırala(sayılar);
+        }
+    }
+
+    public static String yazdır(String[][] sayılar, String[][] Agac, HashMap<String, String> kod, String kelime) {
+        System.out.println();
+        System.out.println(sayılar[0][0] + " : " + sayılar[0][1]);
+        System.out.println();
+        System.out.println("NO  0  1  Agac");
+        for (int i = 0; i < Agac.length; i++) {
+            if (i > 9) {
+                System.out.println(i + "- " + Agac[i][0] + "  " + Agac[i][1] + "  " + Agac[i][2]);
+            } else {
+                System.out.println(i + " – " + Agac[i][0] + "  " + Agac[i][1] + "  " + Agac[i][2]);
+            }
+        }
+        System.out.println();
+        for (String a : kod.keySet()) {
+            System.out.println(a + " : " + kod.get(a));
+        }
+        System.out.println();
+        String a = "";
+        for (int i = 0; i < kelime.length(); i++) {
+            a += kod.get(Character.toString(kelime.charAt(i)));
+        }
+        return (a);
+    }
+
+    public static String Degerleri(int deger, String gelen, String sonuc, String[][] Agac) {
+        if ((Agac[deger][0].equals("x")) && (Agac[deger][1].equals("x"))) {
+            return sonuc;
+        } else {
+            for (int i = 0; i < Agac[Integer.parseInt(Agac[deger][0])][2].length(); i++) {
+                if (Agac[Integer.parseInt(Agac[deger][0])][2].charAt(i) == gelen.charAt(0)) {
+                    sonuc += "0" + Degerleri(Integer.parseInt(Agac[deger][0]), gelen, sonuc, Agac);
+                    return sonuc;
+                }
+            }
+
+            for (int i = 0; i < Agac[Integer.parseInt(Agac[deger][1])][2].length(); i++) {
+                if (Agac[Integer.parseInt(Agac[deger][1])][2].charAt(i) == gelen.charAt(0)) {
+                    sonuc += "1" + Degerleri(Integer.parseInt(Agac[deger][1]), gelen, sonuc, Agac);
+                    return sonuc;
+                }
+            }
+
+        }
+        return sonuc;
+    }
+
+    public static void KodlarıYazma(HashMap<String, String> kod, String[][] Agac) {
+        int z = 0;
+        while (Agac[z][0].equals("x")) {
+            kod.put(Agac[z][2], Degerleri(Agac.length - 1, Agac[z++][2], "", Agac));
+        }
+    }
+
+    public static String metin(String[][] Agac, String gelen, int sıra, String metin, int aga) {
+        if (sıra == gelen.length()) {
+            return metin + Agac[aga][2];
+        } else {
+            if (Agac[aga][Integer.parseInt(Character.toString(gelen.charAt(sıra)))] == "x") {
+                return metin + Agac[aga][2] + metin(Agac, gelen, sıra, metin, Agac.length - 1);
+            } else {
+                return metin + metin(Agac, gelen, sıra + 1, metin, Integer.parseInt(Agac[aga][Integer.parseInt(Character.toString(gelen.charAt(sıra)))]));
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner aa = new Scanner(System.in);
+        String kelime = aa.nextLine();
+        String[][] sayılar = null;
+        String gelen;
+        HashMap<String, String> kod = new HashMap<String, String>();
+        sayılar = SayılarıBelirle(kelime, sayılar);
+        Sırala(sayılar);
+        String[][] Agac = new String[sayılar.length * 2 - 1][3];
+        AgacDoldur(sayılar, Agac);
+        KodlarıYazma(kod, Agac);
+        gelen = yazdır(sayılar, Agac, kod, kelime);
+        System.out.println(gelen);
+        System.out.println();
+        System.out.println(metin(Agac, gelen, 0, "", Agac.length - 1));
+    }
+}
